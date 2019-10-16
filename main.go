@@ -63,8 +63,8 @@ func getUsers(c *gin.Context) {
 	}
 
 	// sleep 5s to LOG db
-	logInfo()
-	// go logInfo()
+	//logInfo()
+	//go logInfo()
 
 	t := time.Now()
 	elapsed := t.Sub(start)
