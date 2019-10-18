@@ -20,6 +20,7 @@ const (
 	dbname   = "demoapidb"
 )
 
+// pRequest DataPost(ID, Name, Email)
 type DataPost struct {
 	ID    int32  `json:"id"`
 	Name  string `json:name`
@@ -97,7 +98,7 @@ func initData() {
 		Email:  "us1@gmail.com",
 	}
 	userS := models.User{
-		ID:     1,
+		ID:     2,
 		Name:   "User Name 2",
 		Gender: "Male",
 		Email:  "us2@gmail.com",
