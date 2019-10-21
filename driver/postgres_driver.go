@@ -1,3 +1,5 @@
+// Package driver with Golang
+// Designed by TRUNGLV
 package driver
 
 import (
@@ -7,15 +9,15 @@ import (
 	_ "github.com/lib/pq" // lib Postgres Database
 )
 
-// class
+// Class PostgreDB data layer
 type PostgresDB struct {
 	SQL *sql.DB // pointer -> tranh tao ra 1 version copy
 }
 
-// global varible
+// Global varible
 var Postgres = &PostgresDB{}
 
-// function
+// Function Connect Postgres data base
 func Connect(host, port, user, password, dbname string) (*PostgresDB, error) {
 	connStr := fmt.Sprintf("host=%s port=%s user=%s password=%s dbname=%s sslmode=disable",
 		host, port, user, password, dbname)

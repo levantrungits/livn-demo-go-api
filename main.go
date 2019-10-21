@@ -1,3 +1,5 @@
+// Package demo-api with Golang
+// Designed by TRUNGLV
 package main
 
 import (
@@ -12,6 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Const host, port, user, password, dbname
 const (
 	host     = "localhost"
 	port     = "5432"
@@ -20,29 +23,51 @@ const (
 	dbname   = "demoapidb"
 )
 
+// Struct DataPost
 type DataPost struct {
 	ID    int32  `json:"id"`
 	Name  string `json:name`
 	Email string `json:email`
 }
 
+// Main Function
 func main() {
 	route := gin.Default()
-
-	route.GET("/users", getUsers)
-	route.POST("/users", func(c *gin.Context) {
-		var dataPost DataPost
-		c.BindJSON(&dataPost)
-		// Do something...
-		c.JSON(http.StatusOK, gin.H{
-			"status": "posted",
-			"data":   dataPost,
-		})
-	})
-
-	route.Run(":8081")
+	route.GET("/users", GetMockDataUsers)
+	route.POST("/users", PostDataUser)
+	route.Run(":8080")
 }
 
+// GetMockDataUsers mock data return json
+func GetMockDataUsers(c *gin.Context) {
+	users := []models.User {
+		{ID:1, Name:"Name 1", Gender:"Male", Email:"name1@gmail.com"},
+		{ID:1, Name:"Name 1", Gender:"Male", Email:"name1@gmail.com"},
+		{ID:1, Name:"Name 1", Gender:"Male", Email:"name1@gmail.com"},
+	}
+	// Do something...
+	c.JSON(http.StatusOK, gin.H{
+		"code":      http.StatusOK,
+		"message":   "get list Users success.",
+		"error-msg": nil,
+		"data":      users,
+	})
+}
+
+// PostDataUser return this data
+func PostDataUser(c *gin.Context) {
+	var dataPost DataPost
+	c.BindJSON(&dataPost)
+	// Do something...
+	c.JSON(http.StatusOK, gin.H{
+		"code":      http.StatusOK,
+		"message":   "data is posted.",
+		"error-msg": nil,
+		"data":      dataPost,
+	})
+}
+
+// Private getUsers Function
 func getUsers(c *gin.Context) {
 	start := time.Now()
 
@@ -77,6 +102,7 @@ func getUsers(c *gin.Context) {
 	})
 }
 
+// Private initData Function
 func initData() {
 	// TEST CONNECT DB
 	db, err := driver.Connect(host, port, user, password, dbname)
@@ -114,6 +140,7 @@ func initData() {
 	}
 }
 
+// Private logInfo Function
 func logInfo() {
 	// insert to LOG table - db
 	time.Sleep(5000 * time.Millisecond)

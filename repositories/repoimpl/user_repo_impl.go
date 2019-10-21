@@ -1,3 +1,5 @@
+// Package repoimpl with Golang
+// Designed by TRUNGLV
 package repoimpl
 
 import (
@@ -7,16 +9,19 @@ import (
 	"fmt"
 )
 
+// Db Object UserRepoImpl
 type UserRepoImpl struct {
 	Db *sql.DB
 }
 
+// Contructopr NewUserRepo
 func NewUserRepo(db *sql.DB) repo.UserRepo {
 	return &UserRepoImpl{
 		Db: db,
 	}
 }
 
+// Public Select Function
 func (u *UserRepoImpl) Select() ([]models.User, error) {
 	users := make([]models.User, 0)
 
@@ -44,6 +49,7 @@ func (u *UserRepoImpl) Select() ([]models.User, error) {
 	return users, nil
 }
 
+// Public Insert Function
 func (u *UserRepoImpl) Insert(user models.User) error {
 	insertStatement := `
 	INSERT INTO public.users(gender, id, name, email)
