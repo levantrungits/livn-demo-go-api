@@ -3,14 +3,12 @@
 pipeline {
   // Execute this Pipeline or any of its stages, on any available agent.
   agent any
-  environment {
-    AWS_ACCESS_KEY_ID     = credentials('jenkins-aws-secret-key-id')
-    AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-secret-access-key')
-  }
   stages {
     stage('Checkout') {
-      echo 'Checking out SCM'
-      checkout scm
+      steps {
+        echo 'Checking out SCM'
+        checkout scm
+      }
     }
     stage('Pre Test') {  // Defines the "Build" stage.
         steps {
