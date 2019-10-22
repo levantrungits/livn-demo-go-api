@@ -1,7 +1,5 @@
 node {
     try{
-        bitbucketStatusNotify(buildState: 'INPROGRESS')
-        
         ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/") {
             withEnv(["GOPATH=${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}"]) {
                 env.PATH="${GOPATH}/bin:$PATH"
@@ -78,11 +76,10 @@ node {
         }
     }catch (e) {
         currentBuild.result = "FAILED"
-        bitbucketStatusNotify(buildState: 'FAILED')
     } finally {
         def bs = currentBuild.result ?: 'SUCCESSFUL'
         if(bs == 'SUCCESSFUL'){
-            bitbucketStatusNotify(buildState: 'SUCCESSFUL')
+            echo ${bs}
         }
     }
 }
