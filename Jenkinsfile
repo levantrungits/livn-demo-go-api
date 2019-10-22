@@ -37,7 +37,7 @@ pipeline {
       }
     }
     stage('BitBucket Publish (Docker Image)') { // Defines the "BitBucket Publish Docker Image".
-      steps {
+      //steps {
         //Find out commit hash
         sh 'git rev-parse HEAD > commit'
         def commit = readFile('commit').trim()
@@ -49,13 +49,14 @@ pipeline {
         //strip off repo-name/origin/ (optional)
         branch = branch.substring(branch.lastIndexOf('/') + 1)
         def archive = "./project-${branch}-${commit}.tar.gz"
-        
+
         echo "Building Archive ${archive}"
         sh """tar -cvzf ${archive} ."""
+        
         echo "Uploading ${archive} to BitBucket Downloads"
         withCredentials([string(credentialsId: 'docker-hub', variable: 'KEY')]) { 
           sh """curl -s -u 'user:${KEY}' -X POST 'Downloads Page URL' --form files=@'${archive}' --fail"""
-        }
+        //}
       }
     }
 
