@@ -49,7 +49,7 @@ pipeline {
       echo "Building Archive ${archive}"
       sh """tar -cvzf ${archive} ."""
       echo "Uploading ${archive} to BitBucket Downloads"
-      withCredentials([string(credentialsId: 'bb-upload-key', variable: 'KEY')]) { 
+      withCredentials([string(credentialsId: 'docker-hub', variable: 'KEY')]) { 
         sh """curl -s -u 'user:${KEY}' -X POST 'Downloads Page URL' --form files=@'${archive}' --fail"""
       }
     }
