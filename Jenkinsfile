@@ -11,41 +11,40 @@ node {
                 
                 stage('Pre Test'){
                     echo 'Pulling Dependencies'
-            
                     sh 'go version'
                     sh 'go get -u github.com/golang/dep/cmd/dep'
                     sh 'go get -u github.com/golang/lint/golint'
                     sh 'go get github.com/tebeka/go2xunit'
                     sh 'go get -v'
                     //or -update
-                    sh 'cd ${GOPATH}/src/cmd/project/ && dep ensure' 
+                    sh 'dep ensure' 
                 }
         
                 stage('Test'){
                     
                     //List all our project files with 'go list ./... | grep -v /vendor/ | grep -v github.com | grep -v golang.org'
                     //Push our project files relative to ./src
-                    sh 'cd $GOPATH && go list ./... | grep -v /vendor/ | grep -v github.com | grep -v golang.org > projectPaths'
+                    sh 'go list ./... | grep -v /vendor/ | grep -v github.com | grep -v golang.org > projectPaths'
                     
                     //Print them with 'awk '$0="./src/"$0' projectPaths' in order to get full relative path to $GOPATH
-                    def paths = sh returnStdout: true, script: """awk '\$0="./src/"\$0' projectPaths"""
+                    def paths = sh returnStdout: true, script: """awk '\$0="./"\$0' projectPaths"""
                     
                     echo 'Vetting'
 
-                    sh """cd $GOPATH && go tool vet ${paths}"""
+                    sh """go tool vet ${paths}"""
 
                     echo 'Linting'
-                    sh """cd $GOPATH && golint ${paths}"""
+                    sh """golint ${paths}"""
                     
                     echo 'Testing'
-                    sh """cd $GOPATH && go test -race -cover ${paths}"""
+                    sh """go test -race -cover ${paths}"""
                 }
             
                 stage('Build'){
                     echo 'Building Executable'
                 
                     //Produced binary is $GOPATH/src/cmd/project/project
-                    sh """cd $GOPATH/src/cmd/project/ && go build -ldflags '-s'"""
+                    sh """go build -ldflags '-s'"""
                 }
                 
                 stage('BitBucket Publish'){
@@ -61,11 +60,11 @@ node {
                     //strip off repo-name/origin/ (optional)
                     branch = branch.substring(branch.lastIndexOf('/') + 1)
                 
-                    def archive = "${GOPATH}/project-${branch}-${commit}.tar.gz"
+                    def archive = "./project-${branch}-${commit}.tar.gz"
 
                     echo "Building Archive ${archive}"
                     
-                    sh """tar -cvzf ${archive} $GOPATH/src/cmd/project/project"""
+                    sh """tar -cvzf ${archive} ."""
 
                     echo "Uploading ${archive} to BitBucket Downloads"
                     withCredentials([string(credentialsId: 'trunglv', variable: 'KEY')]) { 
