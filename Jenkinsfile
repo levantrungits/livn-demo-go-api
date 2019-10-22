@@ -9,7 +9,7 @@ node {
 
     stage('Build image') {
         /* This builds the actual image */
-
+        sh 'go version'
         app = docker.build("trunglv/go-docker-demo")
     }
 
