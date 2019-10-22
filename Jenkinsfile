@@ -41,12 +41,15 @@ pipeline {
         //Find out commit hash
         sh 'git rev-parse HEAD > commit'
         def commit = readFile('commit').trim()
+
         //Find out current branch
         sh 'git name-rev --name-only HEAD > GIT_BRANCH'
         def branch = readFile('GIT_BRANCH').trim()
+
         //strip off repo-name/origin/ (optional)
         branch = branch.substring(branch.lastIndexOf('/') + 1)
         def archive = "./project-${branch}-${commit}.tar.gz"
+        
         echo "Building Archive ${archive}"
         sh """tar -cvzf ${archive} ."""
         echo "Uploading ${archive} to BitBucket Downloads"
