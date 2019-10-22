@@ -37,26 +37,27 @@ pipeline {
       }
     }
     stage('BitBucket Publish (Docker Image)') { // Defines the "BitBucket Publish Docker Image".
-      //steps {
-        //Find out commit hash
-        sh 'git rev-parse HEAD > commit'
-        def commit = readFile('commit').trim()
+      steps {
+        // //Find out commit hash
+        // sh 'git rev-parse HEAD > commit'
+        // def commit = readFile('commit').trim()
 
-        //Find out current branch
-        sh 'git name-rev --name-only HEAD > GIT_BRANCH'
-        def branch = readFile('GIT_BRANCH').trim()
+        // //Find out current branch
+        // sh 'git name-rev --name-only HEAD > GIT_BRANCH'
+        // def branch = readFile('GIT_BRANCH').trim()
 
-        //strip off repo-name/origin/ (optional)
-        branch = branch.substring(branch.lastIndexOf('/') + 1)
-        def archive = "./project-${branch}-${commit}.tar.gz"
+        // //strip off repo-name/origin/ (optional)
+        // branch = branch.substring(branch.lastIndexOf('/') + 1)
+        // def archive = "./project-${branch}-${commit}.tar.gz"
 
-        echo "Building Archive ${archive}"
-        sh """tar -cvzf ${archive} ."""
+        // echo "Building Archive ${archive}"
+        // sh """tar -cvzf ${archive} ."""
         
-        echo "Uploading ${archive} to BitBucket Downloads"
-        withCredentials([string(credentialsId: 'docker-hub', variable: 'KEY')]) { 
-          sh """curl -s -u 'user:${KEY}' -X POST 'Downloads Page URL' --form files=@'${archive}' --fail"""
-        //}
+        // echo "Uploading ${archive} to BitBucket Downloads"
+        // withCredentials([string(credentialsId: 'docker-hub', variable: 'KEY')]) { 
+        //   sh """curl -s -u 'user:${KEY}' -X POST 'Downloads Page URL' --form files=@'${archive}' --fail"""
+        // }
+        echo 'Publish Bitbucket DONE.'
       }
     }
 
