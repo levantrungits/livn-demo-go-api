@@ -1,8 +1,8 @@
 node {
     try{
         ws("${JENKINS_HOME}/jobs/${JOB_NAME}/builds/${BUILD_ID}/") {
-            withEnv(["GOPATH=./"]) {
-                env.PATH="${GOPATH}/bin:$PATH"
+            withEnv(["GOPATH=."]) {
+                env.PATH="."
                 
                 stage('Checkout'){
                     echo 'Checking out SCM'
