@@ -1,6 +1,6 @@
 node {
 
-    ws(".") {
+    // ws(".") {
         withEnv(["GOPATH=."]) {
             env.PATH="."
             
@@ -12,12 +12,12 @@ node {
             stage('Pre Test'){
                 echo 'Pulling Dependencies'
                 sh 'go version'
-                sh 'go get -u github.com/golang/dep/cmd/dep'
-                sh 'go get -u github.com/golang/lint/golint'
-                sh 'go get github.com/tebeka/go2xunit'
+                // sh 'go get -u github.com/golang/dep/cmd/dep'
+                // sh 'go get -u github.com/golang/lint/golint'
+                // sh 'go get github.com/tebeka/go2xunit'
                 sh 'go get -v'
                 //or -update
-                sh 'dep ensure' 
+                //sh 'dep ensure' 
             }
     
             stage('Test'){
@@ -43,7 +43,7 @@ node {
             stage('Build'){
                 echo 'Building Executable'
             
-                //Produced binary is $GOPATH/src/cmd/project/project
+                //Produced binary
                 sh """go build -ldflags '-s'"""
             }
             
@@ -72,5 +72,5 @@ node {
                 }
             }
         }
-    }
+    // }
 }
