@@ -1,62 +1,58 @@
+// 1. Jenkinsfile (Declarative Pipeline) - pipeline
+// 2. Jenkinsfile (Scripted Pipeline) - node
 pipeline {
-  agent {
-    docker {
-      image 'node:10-alpine'
-      args '-p 20001-20100:3000'
-    }
-  }
+  // Execute this Pipeline or any of its stages, on any available agent.
+  agent any
   environment {
-    CI = 'true'
-    HOME = '.'
-    npm_config_cache = 'npm-cache'
+    AWS_ACCESS_KEY_ID     = credentials('jenkins-aws-secret-key-id')
+    AWS_SECRET_ACCESS_KEY = credentials('jenkins-aws-secret-access-key')
   }
   stages {
-    stage('Install Packages') {
-      steps {
-        sh 'npm install'
+    stage('Checkout') {
+      echo 'Checking out SCM'
+      checkout scm
+    }
+    stage('Pre Test') {  // Defines the "Build" stage.
+        steps {
+          // 	Perform some steps related to the "Build" stage.
+          sh 'go version'
+          sh 'go get -v'
+        }
+    }
+    stage('Test') { // Defines the "Test" stage.
+        steps {
+          // Perform some steps related to the "Test" stage.
+          sh 'go list ./... | grep -v /vendor/ | grep -v github.com | grep -v golang.org > projectPaths'
+          echo 'Vetting'
+          sh """go tool vet ."""
+          echo 'Linting'
+          sh """golint ."""
+          echo 'Testing'
+          sh """go test -race -cover ."""
+        }
+    }
+    stage('Build'){
+       // Perform some steps related to the "Test" stage.
+      // Produced binary
+      sh """go build -ldflags '-s'"""
+    }
+    stage('BitBucket Publish (Docker Image)') { // Defines the "BitBucket Publish Docker Image".
+      //Find out commit hash
+      sh 'git rev-parse HEAD > commit'
+      def commit = readFile('commit').trim()
+      //Find out current branch
+      sh 'git name-rev --name-only HEAD > GIT_BRANCH'
+      def branch = readFile('GIT_BRANCH').trim()
+      //strip off repo-name/origin/ (optional)
+      branch = branch.substring(branch.lastIndexOf('/') + 1)
+      def archive = "./project-${branch}-${commit}.tar.gz"
+      echo "Building Archive ${archive}"
+      sh """tar -cvzf ${archive} ."""
+      echo "Uploading ${archive} to BitBucket Downloads"
+      withCredentials([string(credentialsId: 'bb-upload-key', variable: 'KEY')]) { 
+        sh """curl -s -u 'user:${KEY}' -X POST 'Downloads Page URL' --form files=@'${archive}' --fail"""
       }
     }
-    stage('Test and Build') {
-      parallel {
-        stage('Run Tests') {
-          steps {
-            sh 'npm run test'
-          }
-        }
-        stage('Create Build Artifacts') {
-          steps {
-            sh 'npm run build'
-          }
-        }
-      }
-    }
-    stage('Deployment') {
-      parallel {
-        stage('Staging') {
-          when {
-            branch 'staging'
-          }
-          steps {
-            withAWS(region:'<your-bucket-region>',credentials:'<AWS-Staging-Jenkins-Credential-ID>') {
-              s3Delete(bucket: '<bucket-name>', path:'**/*')
-              s3Upload(bucket: '<bucket-name>', workingDir:'build', includePathPattern:'**/*');
-            }
-            mail(subject: 'Staging Build', body: 'New Deployment to Staging', to: 'jenkins-mailing-list@mail.com')
-          }
-        }
-        stage('Production') {
-          when {
-            branch 'master'
-          }
-          steps {
-            withAWS(region:'<your-bucket-region>',credentials:'<AWS-Production-Jenkins-Credential-ID>') {
-              s3Delete(bucket: '<bucket-name>', path:'**/*')
-              s3Upload(bucket: '<bucket-name>', workingDir:'build', includePathPattern:'**/*');
-            }
-            mail(subject: 'Production Build', body: 'New Deployment to Production', to: 'jenkins-mailing-list@mail.com')
-          }
-        }
-      }
-    }
+
   }
 }
