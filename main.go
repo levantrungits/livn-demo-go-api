@@ -19,7 +19,7 @@ const (
 	host     = "localhost"
 	port     = "5432"
 	user     = "levantrungits"
-	password = "thanhtruc@011188"
+	password = "*************"
 	dbname   = "demoapidb"
 )
 
